@@ -118,11 +118,11 @@ export function createRoom({canvas,shell,onSelect,onDoor,onProject,experiences,c
   const bag=makeBag(2.75,.5,.15,scene);bag.rotation.y=-.2;
   function makeBag(x,y,z,parent){const g=new THREE.Group();g.position.set(x,y,z);parent.add(g);box(.67,.73,.36,palette.yellow,0,0,0,g,.11);box(.42,.28,.12,0xe5b85d,0,-.1,.2,g,.07);const loop=addMesh(new THREE.TorusGeometry(.15,.028,8,20,Math.PI),0xccad66,0,.4,0,g);box(.18,.13,.04,palette.blue,0,.07,.23,g);flower(.19,-.18,.275,.07,g);return g;}
   function trophy(x,y,z,year){const g=new THREE.Group();g.position.set(x,y,z);scene.add(g);box(.43,.14,.3,0x9f8261,0,.07,0,g);box(.33,.04,.04,0xe9cf8b,0,.08,.17,g);plane(.29,.12,textMap(year,'#7b6c49','#e9cf8b',95),0,.085,.2,g);cylinder(.07,.2,0xddb253,0,.23,0,g);const bowl=addMesh(new THREE.CylinderGeometry(.21,.075,.3,24),0xf4cc6c,0,.45,0,g);for(const s of [-1,1]){const h=addMesh(new THREE.TorusGeometry(.12,.03,8,20),0xe7bd5c,s*.19,.44,0,g);h.scale.y=1.15;}ball(0,.625,0,.065,.065,.065,0xf9d67e,g);return g;}
-  trophy(-1.78,1.37,-2.84,'2025');
+  const focusTrophy=trophy(-1.78,1.37,-2.84,'2025');
   box(1.6,.82,.77,palette.cream,3.29,.52,-2.83,scene,.07);
   box(.73,.62,.06,0xb4cad0,2.88,.51,-2.405);box(.73,.62,.06,0xb4cad0,3.69,.51,-2.405);
   ball(3.15,.54,-2.36,.035,.035,.02,palette.yellow);ball(3.43,.54,-2.36,.035,.035,.02,palette.yellow);
-  trophy(3.35,.95,-2.85,'2026');
+  const careTrophy=trophy(3.35,.95,-2.85,'2026');
   plane(.53,.27,textMap('KGU','#7d987a','#eef1d8',100),2.82,1.15,-2.44);
 
   // A flower rug, plants, a wall clock, and the line between the two years.
@@ -139,7 +139,7 @@ export function createRoom({canvas,shell,onSelect,onDoor,onProject,experiences,c
   plane(.78,.21,textMap('CONNECT THE DOTS','#99a38a','#f6efdf',44),-.12,4,-3.65);
 
   // Front-right door. It opens only when every experience has been collected.
-  const door=new THREE.Group();door.position.set(4.91,0,1.0);door.rotation.y=-Math.PI/2;scene.add(door);
+  const door=new THREE.Group();door.position.set(4.91,0,1.0);door.rotation.y=Math.PI/2;scene.add(door);
   const doorGlow=new THREE.PointLight(0xffdc88,0,5);doorGlow.position.set(4.9,1.4,1.0);scene.add(doorGlow);
   // A free-standing door on the cutaway edge keeps the ending visible.
   box(1.25,2.7,.2,palette.wood,0,1.35,0,door,.07);
@@ -174,10 +174,13 @@ export function createRoom({canvas,shell,onSelect,onDoor,onProject,experiences,c
   plane(.73,.65,faceMap,0,1.16,.431,character);
   flower(-.02,1.64,.23,.2,character,0x55b9d0);
   const backpack=makeBag(0,.54,-.4,character);backpack.scale.setScalar(.65);backpack.rotation.y=Math.PI;
+  const carryNotebook=box(.25,.33,.07,palette.lilac,-.48,.45,.16,character,.02);carryNotebook.rotation.z=-.18;
   const pins=[];experiences.forEach((e,i)=>{const pin=flower(-.23+i%3*.22,.43+Math.floor(i/3)*.16,.352,.048,character,new THREE.Color(e.color).getHex());pin.visible=collected.has(e.id);pins.push(pin);});
+  const futureDots=[];for(let i=0;i<7;i++){const dot=cylinder(.045,.016,0xe1bf68,4.5+i*.23,.068,1);dot.visible=false;futureDots.push(dot);}
+  const confetti=[];for(let i=0;i<16;i++){const p=ball(0,0,0,.035,.035,.035,[palette.blue,palette.yellow,palette.pink][i%3]);p.visible=false;confetti.push(p);}
 
   const markerPositions={content:new THREE.Vector3(-1.96,1.51,2.13),focus:new THREE.Vector3(-2.7,2.57,-2.67),build:new THREE.Vector3(-.95,2.16,-2.27),research:new THREE.Vector3(-3.85,2.03,-1.6),festival:new THREE.Vector3(-.22,3.15,-3.38),care:new THREE.Vector3(3.05,2.19,-1.05)};
-  const interactives=[{id:'content',group:phoneGroup},{id:'focus',group:scene.children.find(o=>o.position.equals(new THREE.Vector3(-2.7,1.94,-2.67)))},{id:'build',group:laptopGroup},{id:'research',group:researchGroup},{id:'festival',group:passGroup},{id:'care',group:tabletGroup},{id:'care',group:bag}];
+  const interactives=[{id:'content',group:phoneGroup},{id:'focus',group:scene.children.find(o=>o.position.equals(new THREE.Vector3(-2.7,1.94,-2.67)))},{id:'focus',group:focusTrophy},{id:'care',group:careTrophy},{id:'build',group:laptopGroup},{id:'research',group:researchGroup},{id:'festival',group:passGroup},{id:'care',group:tabletGroup},{id:'care',group:bag}];
   interactives.forEach(({id,group})=>group?.traverse(o=>{if(o.isMesh)o.userData.experience=id;}));
   door.traverse(o=>{if(o.isMesh)o.userData.door=true;});
   const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();let pointerStart=null;
@@ -192,13 +195,14 @@ export function createRoom({canvas,shell,onSelect,onDoor,onProject,experiences,c
   new ResizeObserver(resize).observe(shell);resize();
   const screenPoint=new THREE.Vector3();
   function project(v){screenPoint.copy(v).project(camera);return{x:(screenPoint.x*.5+.5)*width,y:(-.5*screenPoint.y+.5)*height,visible:screenPoint.x>-1 && screenPoint.x<1 && screenPoint.y>-1 && screenPoint.y<1};}
-  function updateCollection(values){experiences.forEach((e,i)=>{pins[i].visible=values.has(e.id);pathDots[i].material=material(values.has(e.id)?0xe3b654:0xd7d2b9);if(i){pathLines[i-1].material.color.set(values.has(e.id)&&values.has(experiences[i-1].id)?0xd7ad57:0xd9d0af);pathLines[i-1].material.opacity=values.has(e.id)&&values.has(experiences[i-1].id)?1:.4;}});doorGlow.intensity=values.size===6?2.5:0;}
+  function updateCollection(values){backpack.visible=values.size>=3;carryNotebook.visible=values.has('research');experiences.forEach((e,i)=>{pins[i].visible=values.has(e.id);pathDots[i].material=material(values.has(e.id)?0xe3b654:0xd7d2b9);if(i){pathLines[i-1].material.color.set(values.has(e.id)&&values.has(experiences[i-1].id)?0xd7ad57:0xd9d0af);pathLines[i-1].material.opacity=values.has(e.id)&&values.has(experiences[i-1].id)?1:.4;}});doorGlow.intensity=values.size===6?2.5:0;futureDots.forEach(d=>d.visible=values.size===6);}
   updateCollection(collected);
   let last=performance.now(),elapsed=0;
   function animate(now){
     requestAnimationFrame(animate);const dt=Math.min((now-last)/1000,.05);last=now;elapsed+=dt;
     camera.position.lerp(angleAlt?alternateCamera:baseCamera,reduced?1:dt*3);camera.lookAt(look);
     if(celebration>0)celebration-=dt;
+    confetti.forEach((p,i)=>{p.visible=!reduced&&celebration>0;if(p.visible){const a=i*Math.PI*2/16+elapsed;const rise=(2-celebration)*.45;p.position.set(character.position.x+Math.cos(a)*(.45+rise*.4),.55+rise+i%4*.24,character.position.z+Math.sin(a)*(.45+rise*.4));}});
     if(move){move.progress=Math.min(1,move.progress+dt/(move.duration||1.4));const p=move.progress,pEase=p*p*(3-2*p);character.position.lerpVectors(move.from,move.to,pEase);walking=true;if(p>=1){move=null;walking=false;}}
     else walking=false;
     if(!reduced){
@@ -218,7 +222,7 @@ export function createRoom({canvas,shell,onSelect,onDoor,onProject,experiences,c
     updateCollection,
     toggleView(){angleAlt=!angleAlt;},
     celebrate(id){celebration=2;const v=markerPositions[id];const target=new THREE.Vector3(THREE.MathUtils.clamp(v.x,-2,2.5),.09,THREE.MathUtils.clamp(v.z+.8,-.45,2.5));if(!reduced)move={from:character.position.clone(),to:target,progress:0,duration:1.3};},
-    depart(){ending=true;celebration=1;character.rotation.y=1.1;move={from:character.position.clone(),to:new THREE.Vector3(4.08,.09,1),progress:0,duration:3.5};},
+    depart(){ending=true;celebration=1;character.rotation.y=1.1;move={from:character.position.clone(),to:new THREE.Vector3(5.3,.09,1),progress:0,duration:3.6};},
     reset(){ending=false;move=null;celebration=0;character.position.set(.2,.09,1.27);character.rotation.y=.56;hinge.rotation.y=0;}
   };
 }
