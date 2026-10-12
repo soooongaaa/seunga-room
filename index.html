@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f1e7">
+  <meta name="description" content="서승아의 외출 준비. FocusAI와 CARELINK, 두 번의 1년을 지나 꿈을 향해 출발하는 인터랙티브 3D 포트폴리오.">
+  <title>서승아의 외출 준비 — SEUNGA'S ROOM</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="wordmark" href="./" aria-label="서승아의 방 홈"><span class="brand-flower">✳</span> SEUNGA'S ROOM<span class="brand-sub">서승아의 외출 준비</span></a>
+    <div class="nav"><span class="year">2025 — 2026</span><button id="journal-button" class="nav-button">경험 노트 <span>↗</span></button><button id="help-button" class="icon-button" aria-label="게임 안내">?</button></div>
+  </header>
+  <main>
+    <section class="game" aria-label="서승아의 3D 포트폴리오 방">
+      <div class="intro">
+        <div class="eyebrow"><span class="tiny-star">✦</span> 서승아의 외출 준비 · PORTFOLIO</div>
+        <h1>오늘도,<br>꿈을 향해<span class="title-dot">.</span></h1>
+        <p class="intro-copy">하나하나 찍었던 점들이<br>어느새 나만의 길이 되었습니다.</p>
+        <div class="intro-note"><span class="hand-arrow">↳</span><p>두 번의 1년을 지나,<br>이제 다음 출발을 준비해요.</p></div>
+        <button id="start-button" class="primary-button">외출 준비 도와주기 <span>↗</span></button>
+        <div class="story-year"><span>01 / FocusAI</span><i></i><span>02 / CARELINK</span></div>
+      </div>
+      <div id="scene-shell" class="scene-shell">
+        <canvas id="room-canvas" aria-label="음뽀챠무와 활동 물건이 놓인 3D 방"></canvas>
+        <div id="hotspots" class="hotspots"></div>
+        <div id="loading" class="loading"><span class="loading-flower">✳</span><p>승아의 방을 준비하고 있어요</p></div>
+        <div class="room-caption"><span class="live-dot"></span> 지금, 다음 꿈을 준비하는 중</div>
+        <button id="view-button" class="view-button" aria-label="방 시점 바꾸기">↻ <span>다른 각도</span></button>
+        <div id="speech" class="speech" aria-live="polite">오늘은 어디로 가볼까?</div>
+      </div>
+      <div class="mission"><span class="mission-icon">✧</span><div><b id="mission-title">방 안의 반짝이는 물건을 찾아주세요</b><p id="mission-copy">물건마다 승아의 이야기가 담겨 있어요.</p></div><span id="progress-number">0 / 6</span></div>
+    </section>
+    <section class="bag-section" aria-label="외출 준비 현황">
+      <div class="bag-heading"><div><span class="eyebrow">MY LITTLE ADVENTURE BAG</span><h2>경험을 챙기는 중<span>…</span></h2></div><p>물건을 하나씩 모으면<br>새로운 출발이 가까워져요.</p></div>
+      <div id="inventory" class="inventory"></div>
+      <div class="bag-footer"><span id="progress-label">아직 비어 있는 가방 · 0개의 경험</span><div class="progress-track"><span id="progress-bar"></span></div><button id="depart-button" disabled>출발 준비 중 <span>↗</span></button></div>
+    </section>
+    <footer><span>점이 모여 선이 되고, 경험이 모여 내가 되어요.</span><span>SEO SEUNGA · PERSONAL PORTFOLIO</span></footer>
+  </main>
+  <dialog id="story-dialog" class="story-dialog" aria-labelledby="story-title">
+    <button class="close-button" data-close aria-label="닫기">×</button>
+    <div id="story-content"></div>
+  </dialog>
+  <dialog id="journal-dialog" class="journal-dialog" aria-labelledby="journal-title">
+    <button class="close-button" data-close aria-label="닫기">×</button>
+    <div class="journal-header"><span class="eyebrow">THE DOTS THAT MADE MY LINE</span><h2 id="journal-title">승아의 경험 노트</h2><p>내 경험에서 문제를 발견하고, 사람을 만나며,<br>필요한 서비스를 끝까지 만들어가는 사람.</p></div>
+    <div id="journal-list"></div>
+    <div class="position-note"><b>지금 향하는 곳</b><p>제가 만든 서비스가 실제 사용자의 일상에 닿는 것. CARELINK를 통해 고객과 시장을 배우며 창업에 도전하고 있습니다.</p></div>
+    <button id="reset-button" class="text-button">가방을 비우고 처음부터 둘러보기 ↻</button>
+  </dialog>
+  <dialog id="help-dialog" class="help-dialog" aria-labelledby="help-title"><button class="close-button" data-close aria-label="닫기">×</button><span class="eyebrow">HOW TO PLAY</span><h2 id="help-title">외출 준비를 도와주세요</h2><p>① 방 안의 숫자나 물건을 눌러요.<br>② 승아의 이야기를 읽고 경험을 가방에 챙겨요.<br>③ 여섯 개를 모으면 현관문이 열려요.</p><p class="small-copy">아래 가방에서도 물건을 선택할 수 있어요. ‘경험 노트’에서는 모든 활동을 바로 읽을 수 있습니다. 준비 상태는 이 브라우저에 저장돼요.</p><button data-close class="primary-button">좋아, 시작해볼까? ↗</button></dialog>
+  <dialog id="ending-dialog" class="ending-dialog" aria-labelledby="ending-title"><button class="close-button" data-close aria-label="닫기">×</button><span class="ending-flower">✳</span><span class="eyebrow">THIS IS WHERE THE NEXT STORY BEGINS</span><h2 id="ending-title">다음 꿈을<br>만나러 갑니다<span>.</span></h2><p>작년의 FocusAI, 올해의 CARELINK.<br>두 번의 1년과 두 번의 대상을 지나,<br>제가 만든 서비스가 누군가의 일상에 닿기를 바랍니다.</p><blockquote>낯설어도 만나보고, 모르면 배우고,<br>다시 만들어보겠습니다.</blockquote><div class="ending-actions"><button id="ending-journal" class="primary-button">승아의 경험 다시 보기 ↗</button><button id="replay-button" class="text-button">방으로 돌아가기 ↶</button></div><span class="ending-sign">서승아의 다음 이야기는 계속됩니다.</span></dialog>
+  <div id="toast" class="toast" role="status"></div>
+  <noscript><p class="noscript">이 방을 둘러보려면 JavaScript를 켜주세요. 서승아는 FocusAI와 CARELINK를 각각 1년간 팀장으로 이끌며 창업에 도전하고 있습니다.</p></noscript>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
