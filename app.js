@@ -1,4 +1,4 @@
-import { experiences, featuredIds, supportingIds } from './data.js?v=6';
+import { experiences, featuredIds, supportingIds } from './data.js?v=7';
 
 const $ = (id) => document.getElementById(id);
 const storageKey = 'seunga-room-v1';
@@ -36,7 +36,7 @@ function renderUI() {
   document.querySelector('[role="progressbar"]').setAttribute('aria-valuenow', collected.size);
   $('depart-button').disabled = collected.size !== 6;
   $('depart-button').innerHTML = collected.size === 6 ? '꿈을 향해 출발하기 <span>↗</span>' : '출발 준비 중 <span>↗</span>';
-  $('mission-title').textContent = collected.size === 6 ? '외출 준비 완료! 다음 꿈을 만나러 가요' : '여섯 가지 경험으로 외출을 준비해요';
+  $('mission-title').textContent = collected.size === 6 ? '외출 준비 완료! 찾은 꿈을 향해 나아가요' : '여섯 가지 경험으로 외출을 준비해요';
   $('mission-copy').textContent = collected.size === 6 ? '현관문이나 출발 버튼을 눌러주세요.' : '경험 상세에서 ‘가방에 챙기기’를 눌러주세요.';
   $('start-button').innerHTML = collected.size===6 ? '꿈을 향해 출발하기 ↗' : '방 둘러보기 ↗';
   room?.updateCollection(collected);
@@ -85,7 +85,7 @@ function renderPortfolio(){
     const e=experiences.find(item=>item.id===id);
     return `<article class="project-feature ${id}">
       <div class="project-visual"><div class="visual-top"><span>${e.period} / ${e.category}</span><span aria-hidden="true">0${index+1}</span></div><div class="project-symbol">${itemIcon(e.icon,e.color)}</div><p class="visual-statement">${intentions[id]}</p><div class="service-flow" aria-label="${e.label} 서비스 흐름">${flows[id].map((s,i)=>`<span><small>0${i+1}</small>${s}</span>`).join('')}</div><p class="visual-caption">기획한 핵심 서비스 흐름</p></div>
-      <div class="project-info"><p class="eyebrow">${e.duration} · ${e.role}</p><h3>${e.label}</h3><p class="project-subtitle">${e.subtitle}</p><p class="project-summary">${e.summary}</p><dl class="feature-facts"><div><dt>핵심 기여</dt><dd>${e.skills.join(' · ')}</dd></div><div><dt>주요 성과</dt><dd>${e.highlight}</dd></div></dl><button class="project-link" data-open-experience="${id}" aria-label="${e.label} 프로젝트 자세히 보기">프로젝트 자세히 보기 <span aria-hidden="true">↗</span></button></div>
+      <div class="project-info"><p class="eyebrow">${e.duration} · ${e.role}</p><h3>${e.label}</h3><p class="project-subtitle">${e.subtitle}</p><p class="project-summary">${e.summary}</p><dl class="feature-facts"><div><dt>핵심 기여</dt><dd>${e.skills.join(' · ')}</dd></div><div><dt>주요 결과</dt><dd>${e.highlight}</dd></div></dl><button class="project-link" data-open-experience="${id}" aria-label="${e.label} 프로젝트 자세히 보기">프로젝트 자세히 보기 <span aria-hidden="true">↗</span></button></div>
     </article>`;
   }).join('');
   $('experience-list').innerHTML=supportingIds.map(id=>{const e=experiences.find(item=>item.id===id);return `<button class="experience-row" data-open-experience="${id}" aria-label="${e.label} 상세 보기"><span class="experience-kind">${e.category}</span><span class="experience-main"><strong>${e.label}</strong><span>${e.summary}</span></span><span class="experience-role">${e.role}</span><span class="entry-arrow" aria-hidden="true">↗</span></button>`;}).join('');
@@ -95,7 +95,7 @@ function setSpeech(text){$('speech').textContent=text;}
 function toast(text){clearTimeout(toastTimer);$('toast').textContent=text;$('toast').classList.add('visible');toastTimer=setTimeout(()=>$('toast').classList.remove('visible'),3000);}
 function depart(){
   if(collected.size!==6){toast('여섯 개의 경험을 먼저 챙겨주세요.');return;}
-  if(departed)return;departed=true;setSpeech('좋아, 다음 꿈을 만나러 가자!');
+  if(departed)return;departed=true;setSpeech('좋아, 내 꿈을 향해 가보자!');
   $('scene-shell').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'center'});
   room?.depart();endingTimer=setTimeout(()=>showDialog($('ending-dialog')),room?4500:200);
 }
