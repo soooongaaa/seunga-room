@@ -1,5 +1,5 @@
 import * as THREE from './assets/three.module.js';
-import { createNpochamu } from './npochamu.js?v=4';
+import { createNpochamu } from './npochamu.js?v=5';
 
 export function createRoom({canvas,shell,onSelect,onDoor,onProject,experiences,collected}) {
   const scene=new THREE.Scene();
@@ -153,7 +153,7 @@ export function createRoom({canvas,shell,onSelect,onDoor,onProject,experiences,c
   const doorLabel=plane(.71,.19,textMap('NEXT DREAM','#688680','#b8d6dd',54),.51,.44,.113,hinge);
   const welcome=cylinder(.75,.018,0xffd747,4.02,.065,1.05);welcome.scale.x=.75;
 
-  const {character,leftFoot,rightFoot,leftArm,rightArm,backpack,carryNotebook,pins}=createNpochamu({scene,makeBag,flower,experiences,collected});
+  const {character,leftFoot,rightFoot,leftArm,rightArm,backpack,carryNotebook,pins,updateAppearance}=createNpochamu({scene,makeBag,flower,experiences,collected});
   const futureDots=[];for(let i=0;i<7;i++){const dot=cylinder(.045,.016,0xe1bf68,4.5+i*.23,.068,1);dot.visible=false;futureDots.push(dot);}
   const confetti=[];for(let i=0;i<16;i++){const p=ball(0,0,0,.035,.035,.035,[palette.blue,palette.yellow,palette.pink][i%3]);p.visible=false;confetti.push(p);}
 
@@ -191,7 +191,8 @@ export function createRoom({canvas,shell,onSelect,onDoor,onProject,experiences,c
       leftFoot.rotation.x=walking?Math.sin(elapsed*11)*.25:0;rightFoot.rotation.x=walking?-Math.sin(elapsed*11)*.25:0;
     }
     if(ending){hinge.rotation.y=THREE.MathUtils.lerp(hinge.rotation.y,-1.8,dt*2);doorGlow.intensity=THREE.MathUtils.lerp(doorGlow.intensity,5,dt*2);}
-    const speechPoint=character.localToWorld(new THREE.Vector3(0,2.46,0));
+    updateAppearance(camera,{walking,celebrating:celebration>0,ending});
+    const speechPoint=character.localToWorld(new THREE.Vector3(0,character.userData.speechHeight,0));
     onProject(Object.entries(markerPositions).map(([id,v])=>({id,...project(v)})),project(speechPoint));
     renderer.render(scene,camera);
   }
