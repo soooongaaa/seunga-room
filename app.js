@@ -1,4 +1,4 @@
-import { experiences } from './data.js';
+import { experiences, featuredIds, supportingIds } from './data.js?v=6';
 
 const $ = (id) => document.getElementById(id);
 const storageKey = 'seunga-room-v1';
@@ -31,21 +31,38 @@ function renderUI() {
   $('inventory').querySelectorAll('button').forEach(b => b.addEventListener('click', () => openExperience(b.dataset.id)));
   document.querySelectorAll('.hotspot').forEach(b => { const has=collected.has(b.dataset.id);b.classList.toggle('collected',has);b.querySelector('.pin').textContent=has?'✓':experiences.find(e=>e.id===b.dataset.id).number; });
   $('progress-number').textContent = `${collected.size} / 6`;
-  $('progress-label').textContent = collected.size ? `가방에 챙긴 ${collected.size}개의 경험` : '아직 비어 있는 가방 · 0개의 경험';
+  $('progress-label').textContent = `가방에 챙긴 경험 · ${collected.size}개`;
   $('progress-bar').style.width = `${collected.size/6*100}%`;
+  document.querySelector('[role="progressbar"]').setAttribute('aria-valuenow', collected.size);
   $('depart-button').disabled = collected.size !== 6;
   $('depart-button').innerHTML = collected.size === 6 ? '꿈을 향해 출발하기 <span>↗</span>' : '출발 준비 중 <span>↗</span>';
-  $('mission-title').textContent = collected.size === 6 ? '외출 준비 완료! 이제 다음 꿈을 만나러 가요' : '방 안의 반짝이는 물건을 찾아주세요';
-  $('mission-copy').textContent = collected.size === 6 ? '현관문이나 아래 출발 버튼을 눌러주세요.' : '물건마다 승아의 이야기가 담겨 있어요.';
-  $('start-button').innerHTML = collected.size===6 ? '출발할 준비가 됐어요 <span>↗</span>' : collected.size ? '계속 둘러보기 <span>↗</span>' : '외출 준비 도와주기 <span>↗</span>';
+  $('mission-title').textContent = collected.size === 6 ? '외출 준비 완료! 다음 꿈을 만나러 가요' : '여섯 가지 경험으로 외출을 준비해요';
+  $('mission-copy').textContent = collected.size === 6 ? '현관문이나 출발 버튼을 눌러주세요.' : '경험 상세에서 ‘가방에 챙기기’를 눌러주세요.';
+  $('start-button').innerHTML = collected.size===6 ? '꿈을 향해 출발하기 ↗' : '방 둘러보기 ↗';
   room?.updateCollection(collected);
 }
 
 function openExperience(id) {
   currentExperience=experiences.find(e=>e.id===id); if(!currentExperience)return;
   const e=currentExperience;
-  const detail=e.detail?`<div class="case-detail">${e.detail.map((d,i)=>`<div><span>0${i+1}</span><b>${d.label}</b><p>${d.text}</p></div>`).join('')}</div>`:'';
-  $('story-content').innerHTML=`<div class="story-hero" style="--story-tint:${e.color}25"><span class="eyebrow">${e.number} / ${e.period}</span><h2 id="story-title">${e.title}</h2><p>${e.subtitle}</p><div class="story-big-art">${itemIcon(e.icon,e.color)}</div></div><div class="story-body"><p class="narrative">${e.story}</p>${detail}<div class="story-facts"><div><span>MY ROLE · 내가 한 일</span><p>${e.role}</p></div><div><span>WHAT REMAINS · 남은 것</span><p>${e.result}</p></div></div><div class="story-takeaway"><span>✦</span><p>${e.takeaway}</p></div><ul class="memory-notes">${e.notes.map(n=>`<li>${n}</li>`).join('')}</ul><div class="story-actions"><span>${e.tags.join(' · ')}</span><button id="collect-button" class="collect-button ${collected.has(id)?'already':''}">${collected.has(id)?'이미 챙긴 경험 · 방으로 돌아가기 ✓':'이 경험을 가방에 챙기기 +'}</button></div></div>`;
+  const order=[...featuredIds,...supportingIds];
+  const next=experiences.find(item=>item.id===order[(order.indexOf(id)+1)%order.length]);
+  $('story-content').innerHTML=`
+    <header class="story-hero">
+      <p class="eyebrow">${e.featured?'대표 프로젝트':'경험 기록'} / ${e.category}</p>
+      <h2 id="story-title">${e.label}</h2><p class="story-headline">${e.title}</p><p class="story-summary">${e.summary}</p>
+      <dl class="project-meta"><div><dt>기간·활동</dt><dd>${e.duration}</dd></div><div><dt>담당 역할</dt><dd>${e.role}</dd></div></dl>
+      <ul class="skill-tags">${e.skills.map(s=>`<li>${s}</li>`).join('')}</ul>
+    </header>
+    <div class="story-body">
+      <section class="case-section"><span class="section-number">01</span><div><h3>어떤 문제를 발견했나요?</h3><p>${e.problem}</p></div></section>
+      <section class="case-section"><span class="section-number">02</span><div><h3>어떻게 접근했나요?</h3><p>${e.approach}</p></div></section>
+      <section class="case-section"><span class="section-number">03</span><div><h3>제가 맡은 일</h3><ul class="contribution-list">${e.contributions.map(c=>`<li><h4>${c.title}</h4><p>${c.text}</p></li>`).join('')}</ul></div></section>
+      <section class="case-section"><span class="section-number">04</span><div><h3>산출물과 성과</h3><div class="result-columns"><div><h4>만든 결과물</h4><ul>${e.outputs.map(o=>`<li>${o}</li>`).join('')}</ul></div><div><h4>성과·활동</h4><ul>${e.outcomes.map(o=>`<li>${o}</li>`).join('')}</ul></div></div></div></section>
+      <section class="case-section reflection"><span class="section-number">05</span><div><h3>이 경험이 남긴 것</h3><p>${e.takeaway}</p></div></section>
+      <button class="next-experience" data-open-experience="${next.id}"><span>다음 경험 읽기</span><b>${next.label} ↗</b></button>
+    </div>
+    <div class="story-actions"><span>${collected.has(id)?'✓ 가방에 챙긴 경험':'외출 가방에 이 경험을 담아보세요'}</span><button id="collect-button" class="collect-button ${collected.has(id)?'already':''}">${collected.has(id)?'읽기 마치기 ✓':'이 경험을 가방에 챙기기 +'}</button></div>`;
   $('collect-button').addEventListener('click',()=>{
     if(!collected.has(e.id)) {
       collected.add(e.id);try{localStorage.setItem(storageKey,JSON.stringify([...collected]));}catch{}
@@ -57,9 +74,23 @@ function openExperience(id) {
 }
 
 function renderJournal(){
-  $('journal-list').innerHTML=experiences.map(e=>`<button class="journal-entry" data-id="${e.id}"><span class="journal-icon">${itemIcon(e.icon,e.color)}</span><span><small>${e.period}</small><b>${e.label}</b><p>${e.role}</p></span><span class="entry-arrow">↗</span></button>`).join('');
-  $('journal-list').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>openExperience(b.dataset.id)));
+  const group=(title,ids)=>`<h3 class="index-heading">${title}</h3>${ids.map(id=>{const e=experiences.find(item=>item.id===id);return `<button class="journal-entry" data-open-experience="${e.id}"><span class="journal-icon">${itemIcon(e.icon,e.color)}</span><span><small>${e.period} · ${e.category}</small><b>${e.label}</b><p>${e.role}</p></span><span class="entry-arrow" aria-hidden="true">↗</span></button>`;}).join('')}`;
+  $('journal-list').innerHTML=group('대표 프로젝트',featuredIds)+group('다른 경험',supportingIds);
 }
+
+function renderPortfolio(){
+  const flows={care:['요양 생활기록','AI로 정보 구조화','가족이 함께 확인'],focus:['온라인 학습','집중도 분석','학습 패턴 리포트']};
+  const intentions={care:'돌봄의 정보를<br>가족이 함께 볼 수 있도록.',focus:'보이지 않던 몰입을<br>돌아볼 수 있는 정보로.'};
+  $('featured-projects').innerHTML=featuredIds.map((id,index)=>{
+    const e=experiences.find(item=>item.id===id);
+    return `<article class="project-feature ${id}">
+      <div class="project-visual"><div class="visual-top"><span>${e.period} / ${e.category}</span><span aria-hidden="true">0${index+1}</span></div><div class="project-symbol">${itemIcon(e.icon,e.color)}</div><p class="visual-statement">${intentions[id]}</p><div class="service-flow" aria-label="${e.label} 서비스 흐름">${flows[id].map((s,i)=>`<span><small>0${i+1}</small>${s}</span>`).join('')}</div><p class="visual-caption">기획한 핵심 서비스 흐름</p></div>
+      <div class="project-info"><p class="eyebrow">${e.duration} · ${e.role}</p><h3>${e.label}</h3><p class="project-subtitle">${e.subtitle}</p><p class="project-summary">${e.summary}</p><dl class="feature-facts"><div><dt>핵심 기여</dt><dd>${e.skills.join(' · ')}</dd></div><div><dt>주요 성과</dt><dd>${e.highlight}</dd></div></dl><button class="project-link" data-open-experience="${id}" aria-label="${e.label} 프로젝트 자세히 보기">프로젝트 자세히 보기 <span aria-hidden="true">↗</span></button></div>
+    </article>`;
+  }).join('');
+  $('experience-list').innerHTML=supportingIds.map(id=>{const e=experiences.find(item=>item.id===id);return `<button class="experience-row" data-open-experience="${id}" aria-label="${e.label} 상세 보기"><span class="experience-kind">${e.category}</span><span class="experience-main"><strong>${e.label}</strong><span>${e.summary}</span></span><span class="experience-role">${e.role}</span><span class="entry-arrow" aria-hidden="true">↗</span></button>`;}).join('');
+}
+document.addEventListener('click',event=>{const target=event.target.closest('[data-open-experience]');if(target)openExperience(target.dataset.openExperience);});
 function setSpeech(text){$('speech').textContent=text;}
 function toast(text){clearTimeout(toastTimer);$('toast').textContent=text;$('toast').classList.add('visible');toastTimer=setTimeout(()=>$('toast').classList.remove('visible'),3000);}
 function depart(){
@@ -71,7 +102,8 @@ function depart(){
 $('depart-button').addEventListener('click',depart);
 $('start-button').addEventListener('click',()=>{
   if(collected.size===6){depart();return;}
-  if(collected.size){toast('방의 숫자 또는 아래 가방에서 경험을 골라주세요.');setSpeech('다음 물건은 어디 있을까?');}
+  $('scene-shell').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'center'});
+  if(collected.size){toast('방의 숫자 또는 경험 가방에서 물건을 골라주세요.');setSpeech('다음 물건은 어디 있을까?');}
   else{showDialog($('help-dialog'));setSpeech('같이 외출 준비해줄래?');}
 });
 $('help-button').addEventListener('click',()=>showDialog($('help-dialog')));
@@ -83,7 +115,7 @@ $('reset-button').addEventListener('click',()=>{
 $('replay-button').addEventListener('click',()=>{$('ending-dialog').close();departed=false;room?.reset();room?.updateCollection(collected);setSpeech('다음 이야기도 기대해줘!');});
 $('ending-journal').addEventListener('click',()=>showDialog($('journal-dialog')));
 $('ending-dialog').addEventListener('close',()=>{departed=false;room?.reset();room?.updateCollection(collected);setSpeech('다음 이야기도 기대해줘!');});
-renderJournal();renderUI();
+renderPortfolio();renderJournal();renderUI();
 
 async function initRoom(){
   try{
@@ -98,7 +130,7 @@ async function initRoom(){
     $('loading').classList.add('hidden');$('loading').setAttribute('aria-hidden','true');renderUI();
   }catch(error){
     console.error('Room unavailable',error);$('loading').classList.add('failed');
-    $('loading').innerHTML='<span class="loading-flower">✳</span><p>이 환경에서는 3D 방을 열지 못했어요.<br>아래 가방에서 모든 이야기를 둘러볼 수 있어요.</p><button id="fallback-journal" class="primary-button">경험 노트 펼치기 ↗</button>';
+    $('loading').innerHTML='<span class="loading-flower">✳</span><p>이 환경에서는 3D 방을 열지 못했어요.<br>프로젝트와 경험은 아래에서 읽을 수 있습니다.</p><button id="fallback-journal" class="primary-button">포트폴리오 전체 보기 ↗</button>';
     $('fallback-journal').addEventListener('click',()=>showDialog($('journal-dialog')));$('speech').hidden=true;$('view-button').hidden=true;
   }
 }
