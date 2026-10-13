@@ -1,5 +1,5 @@
 import * as THREE from './assets/three.module.js';
-import { createNpochamu } from './npochamu.js?v=3';
+import { createNpochamu } from './npochamu.js?v=4';
 
 export function createRoom({canvas,shell,onSelect,onDoor,onProject,experiences,collected}) {
   const scene=new THREE.Scene();

@@ -50,7 +50,7 @@ export function createNpochamu({scene,makeBag,flower,experiences,collected}) {
   const leftArm=arm(-1),rightArm=arm(1);
 
   // Five soft petals, as in the supplied figure, instead of a generic flower.
-  const bloom=new THREE.Group();bloom.position.set(.0725,1.905,.405);bloom.rotation.x=-.75;character.add(bloom);
+  const bloom=new THREE.Group();bloom.position.set(.0725,1.905,.23);bloom.rotation.x=-.75;character.add(bloom);
   for(let i=0;i<5;i++){
     const a=i*Math.PI*2/5;
     const petal=ellipsoid(bloom,Math.sin(a)*.167,Math.cos(a)*.167,0,.158,.158,.085,cyan);
