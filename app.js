@@ -26,6 +26,25 @@ dialogs.forEach(dialog => {
   dialog.addEventListener('click', event => { if(event.target === dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left || event.clientX>r.right || event.clientY<r.top || event.clientY>r.bottom)dialog.close();} });
 });
 
+function openWelcome(){
+  showDialog($('welcome-dialog'));
+  document.documentElement.classList.add('welcome-open');
+  $('welcome-dialog').scrollTop=0;
+}
+$('welcome-dialog').addEventListener('close',()=>document.documentElement.classList.remove('welcome-open'));
+$('welcome-enter').addEventListener('click',()=>{
+  $('welcome-dialog').close();
+  $('top').scrollIntoView({behavior:'instant',block:'start'});
+  $('start-button').focus({preventScroll:true});
+  setSpeech('반가워! 내 방을 함께 둘러보자.');
+});
+$('welcome-portfolio').addEventListener('click',()=>{
+  $('welcome-dialog').close();
+  $('projects').scrollIntoView({behavior:'instant',block:'start'});
+  $('projects-title').focus({preventScroll:true});
+});
+$('welcome-replay').addEventListener('click',openWelcome);
+
 function renderUI() {
   $('inventory').innerHTML = experiences.map(e => `<button class="inventory-item ${collected.has(e.id)?'collected':''}" data-id="${e.id}" aria-label="${e.label} ${collected.has(e.id)?'챙긴 경험 다시 보기':'경험 찾아보기'}"><span class="item-number">${e.number}</span><span class="item-check">${collected.has(e.id)?'✓':''}</span><span class="item-art">${itemIcon(e.icon,e.color)}</span><b>${e.short}</b><small>${e.label}</small></button>`).join('');
   $('inventory').querySelectorAll('button').forEach(b => b.addEventListener('click', () => openExperience(b.dataset.id)));
@@ -115,7 +134,7 @@ $('reset-button').addEventListener('click',()=>{
 $('replay-button').addEventListener('click',()=>{$('ending-dialog').close();departed=false;room?.reset();room?.updateCollection(collected);setSpeech('다음 이야기도 기대해줘!');});
 $('ending-journal').addEventListener('click',()=>showDialog($('journal-dialog')));
 $('ending-dialog').addEventListener('close',()=>{departed=false;room?.reset();room?.updateCollection(collected);setSpeech('다음 이야기도 기대해줘!');});
-renderPortfolio();renderJournal();renderUI();
+renderPortfolio();renderJournal();renderUI();openWelcome();
 
 async function initRoom(){
   try{
