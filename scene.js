@@ -1,4 +1,5 @@
 import * as THREE from './assets/three.module.js';
+import { createNpochamu } from './npochamu.js?v=3';
 
 export function createRoom({canvas,shell,onSelect,onDoor,onProject,experiences,collected}) {
   const scene=new THREE.Scene();
@@ -152,41 +153,7 @@ export function createRoom({canvas,shell,onSelect,onDoor,onProject,experiences,c
   const doorLabel=plane(.71,.19,textMap('NEXT DREAM','#688680','#b8d6dd',54),.51,.44,.113,hinge);
   const welcome=cylinder(.75,.018,0xffd747,4.02,.065,1.05);welcome.scale.x=.75;
 
-  // Reference-inspired npochamu: scalloped head, flower, mittens and expressive face.
-  const character=new THREE.Group();character.position.set(.2,.09,1.27);character.rotation.y=.56;scene.add(character);character.scale.setScalar(1.3);
-  ball(0,.52,0,.44,.54,.37,palette.white,character);
-  ball(0,1.17,0,.5,.44,.42,palette.white,character);
-  ball(-.24,1.46,-.025,.27,.28,.28,palette.white,character);ball(.24,1.46,-.025,.27,.28,.28,palette.white,character);ball(0,1.53,-.015,.26,.24,.27,palette.white,character);
-  const leftFoot=ball(-.22,.08,.075,.24,.12,.29,palette.white,character),rightFoot=ball(.22,.08,.075,.24,.12,.29,palette.white,character);
-  const leftArm=new THREE.Group(),rightArm=new THREE.Group();leftArm.position.set(-.44,.7,.01);rightArm.position.set(.44,.7,.01);character.add(leftArm,rightArm);
-  ball(-.07,.02,0,.115,.2,.12,palette.yellow,leftArm);ball(-.12,-.105,.015,.14,.17,.13,0x12b5dc,leftArm);
-  ball(.07,.02,0,.115,.2,.12,palette.yellow,rightArm);ball(.12,-.105,.015,.14,.17,.13,0x12b5dc,rightArm);
-  // Keep the reference artwork unchanged; project its original face region onto the model.
-  const originalFace=new THREE.TextureLoader().load('./assets/npochamu-reference.png');
-  originalFace.minFilter=THREE.LinearFilter;originalFace.magFilter=THREE.LinearFilter;
-  originalFace.generateMipmaps=false;
-  const faceMaterial=new THREE.ShaderMaterial({
-    uniforms:{reference:{value:originalFace},region:{value:new THREE.Vector4(162/360,1-294/360,37/360,37/360)}},
-    vertexShader:`varying vec2 faceUv; void main(){faceUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
-    fragmentShader:`
-      uniform sampler2D reference; uniform vec4 region; varying vec2 faceUv;
-      void main(){
-        vec3 photo=texture2D(reference,region.xy+faceUv*region.zw).rgb;
-        float ink=1.0-smoothstep(0.42,0.72,min(photo.r,min(photo.g,photo.b)));
-        float blush=smoothstep(0.055,0.16,photo.r-photo.g);
-        float alpha=max(ink,blush);
-        if(alpha<0.03)discard;
-        gl_FragColor=vec4(pow(photo,vec3(2.2)),alpha);
-        #include <colorspace_fragment>
-      }`,
-    transparent:true,depthWrite:false,toneMapped:false
-  });
-  const face=new THREE.Mesh(new THREE.PlaneGeometry(.76,.70),faceMaterial);
-  face.position.set(0,1.14,.433);character.add(face);
-  flower(-.02,1.64,.23,.2,character,0x0cb8de);
-  const backpack=makeBag(0,.54,-.4,character);backpack.scale.setScalar(.65);backpack.rotation.y=Math.PI;
-  const carryNotebook=box(.25,.33,.07,palette.lilac,-.48,.45,.16,character,.02);carryNotebook.rotation.z=-.18;
-  const pins=[];experiences.forEach((e,i)=>{const pin=flower(-.23+i%3*.22,.43+Math.floor(i/3)*.16,.352,.048,character,new THREE.Color(e.color).getHex());pin.visible=collected.has(e.id);pins.push(pin);});
+  const {character,leftFoot,rightFoot,leftArm,rightArm,backpack,carryNotebook,pins}=createNpochamu({scene,makeBag,flower,experiences,collected});
   const futureDots=[];for(let i=0;i<7;i++){const dot=cylinder(.045,.016,0xe1bf68,4.5+i*.23,.068,1);dot.visible=false;futureDots.push(dot);}
   const confetti=[];for(let i=0;i<16;i++){const p=ball(0,0,0,.035,.035,.035,[palette.blue,palette.yellow,palette.pink][i%3]);p.visible=false;confetti.push(p);}
 
@@ -224,7 +191,7 @@ export function createRoom({canvas,shell,onSelect,onDoor,onProject,experiences,c
       leftFoot.rotation.x=walking?Math.sin(elapsed*11)*.25:0;rightFoot.rotation.x=walking?-Math.sin(elapsed*11)*.25:0;
     }
     if(ending){hinge.rotation.y=THREE.MathUtils.lerp(hinge.rotation.y,-1.8,dt*2);doorGlow.intensity=THREE.MathUtils.lerp(doorGlow.intensity,5,dt*2);}
-    const speechPoint=character.localToWorld(new THREE.Vector3(0,2.05,0));
+    const speechPoint=character.localToWorld(new THREE.Vector3(0,2.46,0));
     onProject(Object.entries(markerPositions).map(([id,v])=>({id,...project(v)})),project(speechPoint));
     renderer.render(scene,camera);
   }

@@ -87,7 +87,7 @@ renderJournal();renderUI();
 
 async function initRoom(){
   try{
-    const { createRoom }=await import('./scene.js?v=2');
+    const { createRoom }=await import('./scene.js?v=3');
     room=createRoom({canvas:$('room-canvas'),shell:$('scene-shell'),onSelect:openExperience,onDoor:depart,experiences,collected,
       onProject:(points,character)=>{
         points.forEach(({id,x,y,visible})=>{const b=document.querySelector(`.hotspot[data-id="${id}"]`);if(b){b.style.left=`${x}px`;b.style.top=`${y}px`;b.style.visibility=visible?'visible':'hidden';}});
